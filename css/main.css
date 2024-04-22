@@ -1,0 +1,35 @@
+body{
+    margin: 0;
+    padding: 0;
+    background: white;
+
+}
+
+#board{
+    width: 954px;
+    height: 636px;
+    /* background: rgb(0, 229, 250); */
+    background-image: url("../images/background.svg");
+    margin: auto;
+    position: relative;
+    /* border: 2px solid brown; */
+    /* border-radius: 50% */
+}
+
+#player{
+    content:url("../images/frog.svg");
+    height: 100px;
+    width: 100px;
+    position: absolute;
+    left: 0px;
+    bottom: 400px
+}
+
+.fly{
+    content:url("../images/fly.svg");
+    height: 50px;
+    width: 50px;
+    position: absolute;
+    left: 500px;
+    bottom: 400px;
+}
