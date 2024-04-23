@@ -12,18 +12,22 @@ h1{
 }
 
 a:link {
-    color: white;
+    color: hotpink;
   }
   
   /* visited link */
   a:visited {
-    color: white;
+    color: hotpink;
   }
   
   /* mouse over link */
   a:hover {
-    color: hotpink;
+    color: black;
   }
+
+span{
+    color:hotpink;
+}
 
 #board{
     width: 954px;
@@ -38,7 +42,7 @@ a:link {
 
 #timer{
     margin: 10px;
-    color: white;
+    color: hotpink;
 }
 
 #instructions{
