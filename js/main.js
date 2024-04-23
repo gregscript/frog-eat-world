@@ -1,21 +1,40 @@
-// board Info 
+// board setup
 
+const board = document.querySelector("#board");
 let boardWidth = 954;
 let boardHeight = 636;
+board.style.width = boardWidth + "px";
+board.style.height = boardHeight + "px";
 
 // class Fly
 
-const fly = document.querySelector(".fly");
 
+// class Fly{
+//     constructor(){
+//         this.flyWidth = 50;
+//         this.flyHeight = 50;
+//     }
+
+
+// }
+
+const fly = document.createElement("div")
+fly.className = "fly"
 let flyWidth = 50;
 let flyHeight = 50;
 fly.style.width = flyWidth + "px"
 fly.style.height = flyHeight + "px"
 
-let flyXPos = boardWidth-flyWidth*6;
+let minBoardPos = flyWidth;
+let maxBoardPos = boardWidth - flyWidth;
+
+let flyXPos = Math.floor(Math.random() * (maxBoardPos - minBoardPos + 1)) + minBoardPos;
 let flyYPos = boardHeight/4;
 fly.style.bottom = flyYPos + "px";
 fly.style.left = flyXPos + "px";
+board.appendChild(fly);
+
+
 
 // class Player
 
@@ -96,36 +115,6 @@ addEventListener("keydown", (event) => {
             }, 800) // clear the jumpDownInterval after landing
 
         }
-  
-
-        // if(playerDirection === "right" && playerXPos < boardWidth - playerWidth - 50){
-        //     let playerXPosOld = playerXPos;
-        //     let playerYPosOld = playerYPos;
-        //     if(playerYPos === 0) { // only jump up if you're on the ground
-        //         let jumpUpInterval = setInterval(function(){ 
-        //             if(playerXPos < playerXPosOld + 50 && playerYPos < playerYPosOld + 450){
-        //             playerXPos += 5;
-        //             playerYPos += 5;
-        //             player.style.left = playerXPos + "px";
-        //             player.style.bottom = playerYPos + "px";
-        //             }
-        //         }, 0.1)
-        //     }
-            
-        //     setTimeout(function(){
-        //         let jumpDownInterval = setInterval(function(){ 
-        //         if(playerXPos < playerXPosOld + 100 && playerYPos > playerYPosOld){
-        //             playerXPos += 1;
-        //             playerYPos -= 1;
-        //             player.style.left = playerXPos + "px";
-        //             player.style.bottom = playerYPos + "px";
-        //             }
-        //     }, 1)
-        //     }, 200)
-        // }
-        // cannot clear Timeouts. this blocks code when going back left after jump.
-
-        
     }
 })
 
