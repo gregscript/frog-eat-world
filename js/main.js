@@ -12,8 +12,8 @@ let flyHeight = 50;
 fly.style.width = flyWidth + "px"
 fly.style.height = flyHeight + "px"
 
-let flyXPos = boardWidth-flyWidth*2;
-let flyYPos = boardHeight/3;
+let flyXPos = boardWidth-flyWidth*6;
+let flyYPos = boardHeight/4;
 fly.style.bottom = flyYPos + "px";
 fly.style.left = flyXPos + "px";
 
@@ -62,45 +62,70 @@ addEventListener("keydown", (event) => {
             playerDirection = "left";
             player.style.left = playerXPos + "px";
         }
+
         if(playerDirection === "right" && playerXPos < boardWidth - playerWidth - 50){
             let playerXPosOld = playerXPos;
             let playerYPosOld = playerYPos;
+            let jumpUpInterval;
+            let jumpDownInterval
             if(playerYPos === 0) { // only jump up if you're on the ground
-                let jumpUpInterval = setInterval(function(){ 
-                    if(playerXPos < playerXPosOld + 50 && playerYPos < playerYPosOld + 300){
+                jumpUpInterval = setInterval(function(){ 
+                    if(playerXPos < playerXPosOld + 100){
                     playerXPos += 1;
                     playerYPos += 1;
                     player.style.left = playerXPos + "px";
                     player.style.bottom = playerYPos + "px";
                     }
-                }, 0.5)
+                }, 1)
             }
             
             setTimeout(function(){
-                let jumpDownInterval = setInterval(function(){ 
-                if(playerXPos < playerXPosOld + 100 && playerYPos > playerYPosOld){
+                clearInterval(jumpUpInterval);
+                jumpDownInterval = setInterval(function(){ 
+                if(playerYPos > playerYPosOld){
                     playerXPos += 1;
                     playerYPos -= 1;
                     player.style.left = playerXPos + "px";
                     player.style.bottom = playerYPos + "px";
                     }
             }, 1)
-            }, 150)
+            }, 400) // stop the jumpUpInterval and start the jumpDown after half the jump
 
             setTimeout(function(){
-                let jumpDownInterval = setInterval(function(){ 
-                if(playerXPos < playerXPosOld + 100 && playerYPos > playerYPosOld){
-                    playerXPos += 1;
-                    playerYPos -= 1;
-                    player.style.left = playerXPos + "px";
-                    player.style.bottom = playerYPos + "px";
-                    }
-            }, 1)
-            }, 150)
+                clearInterval(jumpDownInterval);
+            }, 800) // clear the jumpDownInterval after landing
+
         }
+  
+
+        // if(playerDirection === "right" && playerXPos < boardWidth - playerWidth - 50){
+        //     let playerXPosOld = playerXPos;
+        //     let playerYPosOld = playerYPos;
+        //     if(playerYPos === 0) { // only jump up if you're on the ground
+        //         let jumpUpInterval = setInterval(function(){ 
+        //             if(playerXPos < playerXPosOld + 50 && playerYPos < playerYPosOld + 450){
+        //             playerXPos += 5;
+        //             playerYPos += 5;
+        //             player.style.left = playerXPos + "px";
+        //             player.style.bottom = playerYPos + "px";
+        //             }
+        //         }, 0.1)
+        //     }
+            
+        //     setTimeout(function(){
+        //         let jumpDownInterval = setInterval(function(){ 
+        //         if(playerXPos < playerXPosOld + 100 && playerYPos > playerYPosOld){
+        //             playerXPos += 1;
+        //             playerYPos -= 1;
+        //             player.style.left = playerXPos + "px";
+        //             player.style.bottom = playerYPos + "px";
+        //             }
+        //     }, 1)
+        //     }, 200)
+        // }
         // cannot clear Timeouts. this blocks code when going back left after jump.
-        // clearTimeout(jumpUpInterval);
-        // clearTimeout(jumpDownInterval);
+
+        
     }
 })
 
@@ -117,7 +142,7 @@ let detectCollisionInterval = setInterval(() => {
                 console.log("collision")
                 clearInterval(detectCollisionInterval);
         }
-}, 70);
+}, 100);
 }
 detectCollision();
 
