@@ -1,9 +1,29 @@
 body{
     margin: 0;
     padding: 0;
-    background: white;
+    background: #25896a;
+    text-align: center;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 
 }
+
+h1{
+    color:white;
+}
+
+a:link {
+    color: white;
+  }
+  
+  /* visited link */
+  a:visited {
+    color: white;
+  }
+  
+  /* mouse over link */
+  a:hover {
+    color: hotpink;
+  }
 
 #board{
     width: 954px;
@@ -14,6 +34,16 @@ body{
     position: relative;
     /* border: 2px solid brown; */
     /* border-radius: 50% */
+}
+
+#timer{
+    margin: 10px;
+    color: white;
+}
+
+#instructions{
+    margin: 10px;
+    color:white;
 }
 
 #player{
