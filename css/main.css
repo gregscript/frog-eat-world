@@ -27,7 +27,5 @@ body{
 
 .fly{
     content:url("../images/fly.svg");
-    height: 50px;
-    width: 50px;
     position: absolute;
 }

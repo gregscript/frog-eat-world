@@ -6,114 +6,194 @@ let boardHeight = 636;
 board.style.width = boardWidth + "px";
 board.style.height = boardHeight + "px";
 
-// class Fly
+// fly setup
 
+class Fly{
+    constructor(){
+        this.width = 50;
+        this.height = 50;
+        this.minBoardPos = this.width;
+        this.maxBoardPos = boardWidth - this.width;
+        this.XPos = Math.floor(Math.random() * (this.maxBoardPos - this.minBoardPos + 1)) + this.minBoardPos;
+        this.YPos = boardHeight/4;
+        this.DOMElement = null;
 
-// class Fly{
-//     constructor(){
-//         this.flyWidth = 50;
-//         this.flyHeight = 50;
-//     }
+        this.createFly()
+    }
+    createFly(){
+        this.DOMElement = document.createElement("div");
+        this.DOMElement.className = "fly"
+        this.DOMElement.style.width = this.width + "px"
+        this.DOMElement.style.height = this.height + "px"
+        this.DOMElement.style.bottom = this.YPos + "px";
+        this.DOMElement.style.left = this.XPos + "px";
+        board.appendChild(this.DOMElement);
+    }
+}
 
-
-// }
-
-const fly = document.createElement("div")
-fly.className = "fly"
-let flyWidth = 50;
-let flyHeight = 50;
-fly.style.width = flyWidth + "px"
-fly.style.height = flyHeight + "px"
-
-let minBoardPos = flyWidth;
-let maxBoardPos = boardWidth - flyWidth;
-
-let flyXPos = Math.floor(Math.random() * (maxBoardPos - minBoardPos + 1)) + minBoardPos;
-let flyYPos = boardHeight/4;
-fly.style.bottom = flyYPos + "px";
-fly.style.left = flyXPos + "px";
-board.appendChild(fly);
-
-
+const fly = new Fly();
 
 // class Player
 
-const player = document.querySelector("#player");
+class Player{
+    constructor(){
+        this.width = 100;
+        this.height = 100;
+        this.minBoardPos = this.width;
+        this.maxBoardPos = boardWidth - this.width;
+        this.XPos = 0
+        this.YPos = 0
+        this.direction = "right";
 
-let playerWidth = 100;
-let playerHeight = 100;
-player.style.width = playerWidth + "px"
-player.style.height = playerHeight + "px"
+        this.DOMElement = document.querySelector("#player");
+        this.DOMElement.style.width = this.width + "px"
+        this.DOMElement.style.height = this.height + "px"
+        this.DOMElement.style.left = this.XPos + "px";
+        this.DOMElement.style.bottom = this.YPos + "px";
 
-let playerYPos = 0;
-let playerXPos = 0;
-player.style.bottom = playerYPos + "px";
-player.style.left = playerXPos + "px";
+    }
+    moveLeft(){
+        if(this.XPos > 0){
+            this.XPos -= 10;
+            this.direction = "left";
+            this.DOMElement.style.left = this.XPos + "px";
+        }    
+    }
+    moveRight(){
+        if(this.XPos < boardWidth - this.width){
+            this.XPos += 10;
+            this.direction = "right";
+            this.DOMElement.style.left = this.XPos + "px";
+        }
+    }
+    // jump still a bit buggy if jumping too many times in a row
+    jumpRight(){
+        let XPosOld = this.XPos;
+        let YPosOld = this.YPos;
+        let jumpUpInterval;
+        let jumpDownInterval;
+        if(this.YPos === 0) { // only jump up if you're on the ground
+            jumpUpInterval = setInterval(() => { 
+                if(this.XPos < XPosOld + 100){
+                this.XPos += 1;
+                this.YPos += 1;
+                this.DOMElement.style.left = this.XPos + "px";
+                this.DOMElement.style.bottom = this.YPos + "px";
+                }
+            }, 1)
+        }
+        
+        setTimeout(() => {
+            clearInterval(jumpUpInterval);
+            jumpDownInterval = setInterval(() => { 
+            if(this.YPos > YPosOld){
+                this.XPos += 1;
+                this.YPos -= 1;
+                this.DOMElement.style.left = this.XPos + "px";
+                this.DOMElement.style.bottom = this.YPos + "px";
+                }
+        }, 1)
+        }, 400) // stop the jumpUpInterval and start the jumpDown after half the jump
 
-let playerDirection = "up"
+        setTimeout(() => {
+            clearInterval(jumpDownInterval);
+        }, 800) // clear the jumpDownInterval after landing
+
+// jump refactor
+        // let jumpDown = false;
+        // let jumpCounter = 0;
+
+        // let jumpInterval = setInterval( () => {
+        //     if(jumpCounter < 50 && jumpDown === false){
+        //         this.XPos++
+        //         this.YPos++;
+        //         this.DOMElement.style.left = this.XPos + "px";
+        //         this.DOMElement.style.bottom = this.YPos + "px";
+        //         jumpCounter++
+        //     }
+        //     if(jumpCounter === 50) jumpDown === true;
+        //     if(jumpCounter >= 0 && jumpDown === true){
+        //         this.XPos++
+        //         this.YPos--;
+        //         this.DOMElement.style.left = this.XPos + "px";
+        //         this.DOMElement.style.bottom = this.YPos + "px";
+        //         jumpCounter--
+        //     }
+        //     if(jumpCounter === -1) clearInterval(jumpInterval);
+        // }, 1)
+    }
+    // a bit buggy
+
+    jumpLeft(){
+        let XPosOld = this.XPos;
+        let YPosOld = this.YPos;
+        let jumpUpInterval;
+        let jumpDownInterval;
+        if(this.YPos === 0) { // only jump up if you're on the ground
+            jumpUpInterval = setInterval(() => { 
+                if(this.XPos > XPosOld - 100){
+                this.XPos -= 1;
+                this.YPos += 1;
+                this.DOMElement.style.left = this.XPos + "px";
+                this.DOMElement.style.bottom = this.YPos + "px";
+                }
+            }, 1)
+        }
+        
+        setTimeout(() => {
+            clearInterval(jumpUpInterval);
+            jumpDownInterval = setInterval(() => { 
+            if(this.YPos > YPosOld){
+                this.XPos -= 1;
+                this.YPos -= 1;
+                this.DOMElement.style.left = this.XPos + "px";
+                this.DOMElement.style.bottom = this.YPos + "px";
+                }
+        }, 1)
+        }, 400) // stop the jumpUpInterval and start the jumpDown after half the jump
+
+        setTimeout(() => {
+            clearInterval(jumpDownInterval);
+        }, 800) // clear the jumpDownInterval after landing
+    }
+
+    growPlayer(){
+        let growPlayerInterval = setInterval(() => {
+        if(this.width <= 120 && this.height <= 120) { // should be flexible (i.e. grow multiple times)
+            this.width += 5;
+            this.height += 5;
+            this.DOMElement.style.width = this.width + "px"
+            this.DOMElement.style.height = this.height + "px"
+        } else {
+            clearInterval(growPlayerInterval)
+            detectCollision(); // this is dangerous if we do not remove fly instance, frog could grow forever due to permanent collision
+        }
+    }, 70) // potentially wrap another timeout around it to delay the growth a bit
+    }
+
+}
+
+const player = new Player();
+
 
 // To Do: adjust frog image Direction with direction change
 addEventListener("keydown", (event) => {
     // console.log(event.code);
-    // method moveLeft()
     if(event.code === "ArrowLeft"){
-        if(playerXPos > 0){
-            playerXPos -= 10;
-            playerDirection = "left";
-            player.style.left = playerXPos + "px";
-        }
+        player.moveLeft();
     }
-    // method moveRight()
     if(event.code === "ArrowRight"){
-        if(playerXPos < boardWidth - playerWidth){
-            playerXPos += 10;
-            playerDirection = "right";
-            player.style.left = playerXPos + "px";
-        }
+        player.moveRight();
     }
 
-    // method jump()
-    // attention not to jump outside the board
-    // jump still a bit buggy if jumping too many times in a row
     if(event.code === "Space"){
-        if(playerDirection === "left" && playerXPos > 50){
-            playerXPos -= 60;
-            playerDirection = "left";
-            player.style.left = playerXPos + "px";
+        // attention not to jump outside the board
+        if(player.direction === "left" && player.XPos > 200){ // board jump limit should be dynamic depending on player size
+            player.jumpLeft()
         }
 
-        if(playerDirection === "right" && playerXPos < boardWidth - playerWidth - 50){
-            let playerXPosOld = playerXPos;
-            let playerYPosOld = playerYPos;
-            let jumpUpInterval;
-            let jumpDownInterval
-            if(playerYPos === 0) { // only jump up if you're on the ground
-                jumpUpInterval = setInterval(function(){ 
-                    if(playerXPos < playerXPosOld + 100){
-                    playerXPos += 1;
-                    playerYPos += 1;
-                    player.style.left = playerXPos + "px";
-                    player.style.bottom = playerYPos + "px";
-                    }
-                }, 1)
-            }
-            
-            setTimeout(function(){
-                clearInterval(jumpUpInterval);
-                jumpDownInterval = setInterval(function(){ 
-                if(playerYPos > playerYPosOld){
-                    playerXPos += 1;
-                    playerYPos -= 1;
-                    player.style.left = playerXPos + "px";
-                    player.style.bottom = playerYPos + "px";
-                    }
-            }, 1)
-            }, 400) // stop the jumpUpInterval and start the jumpDown after half the jump
-
-            setTimeout(function(){
-                clearInterval(jumpDownInterval);
-            }, 800) // clear the jumpDownInterval after landing
-
+        if(player.direction === "right" && player.XPos < boardWidth - 200){ // potentially make jump smaller if board is exceeded
+            player.jumpRight()
         }
     }
 })
@@ -122,29 +202,15 @@ addEventListener("keydown", (event) => {
 
 function detectCollision(){
 let detectCollisionInterval = setInterval(() => {
-        if (playerXPos < flyXPos + flyWidth &&
-            playerXPos + playerWidth > flyXPos &&
-            playerYPos < flyYPos + flyHeight &&
-            playerYPos + playerHeight > flyYPos) {
-                fly.style.display = "none"; // rather remove instance
-                growPlayer();
+        if (player.XPos < fly.XPos + fly.width &&
+            player.XPos + player.width > fly.XPos &&
+            player.YPos < fly.YPos + fly.height &&
+            player.YPos + player.height > fly.YPos) {
+                fly.DOMElement.style.display = "none"; // rather remove instance
+                player.growPlayer();
                 console.log("collision")
                 clearInterval(detectCollisionInterval);
         }
 }, 100);
 }
 detectCollision();
-
-function growPlayer(){
-    let growPlayerInterval = setInterval(() => {
-        if(playerWidth <= 120 && playerHeight <= 120) { // should be flexible (i.e. grow multiple times)
-            playerWidth += 5;
-            playerHeight += 5;
-            player.style.width = playerWidth + "px"
-            player.style.height = playerHeight + "px"
-        } else {
-            clearInterval(growPlayerInterval)
-            detectCollision(); // this is dangerous if we do not remove fly instance, frog could grow forever due to permanent collision
-        }
-    }, 70) // potentially wrap another timeout around it to delay the growth a bit
-}
