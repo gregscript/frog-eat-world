@@ -25,6 +25,7 @@ class Player{
         this.DOMElement.style.bottom = this.YPos + "px";
 
     }
+    // DRY
     moveLeft(){
         if(this.XPos > 0){
             this.XPos -= 10;
@@ -39,96 +40,54 @@ class Player{
             this.DOMElement.style.left = this.XPos + "px";
         }
     }
-    // jump still a bit buggy if jumping too many times in a row
     jumpRight(){
-        let XPosOld = this.XPos;
-        let YPosOld = this.YPos;
-        let jumpUpInterval;
-        let jumpDownInterval;
-        if(this.YPos === 0) { // only jump up if you're on the ground
-            jumpUpInterval = setInterval(() => { 
-                if(this.XPos < XPosOld + 100){
-                this.XPos += 1;
-                this.YPos += 1;
-                this.DOMElement.style.left = this.XPos + "px";
-                this.DOMElement.style.bottom = this.YPos + "px";
+        let jumpCounter = 0;
+        let jumpInterval = setInterval(() => {
+                if(jumpCounter < 50){
+                    this.XPos++
+                    this.YPos +=2;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
                 }
-            }, 1)
-        }
-        
-        setTimeout(() => {
-            clearInterval(jumpUpInterval);
-            jumpDownInterval = setInterval(() => { 
-            if(this.YPos > YPosOld){
-                this.XPos += 1;
-                this.YPos -= 1;
-                this.DOMElement.style.left = this.XPos + "px";
-                this.DOMElement.style.bottom = this.YPos + "px";
+                if(jumpCounter >= 50 && jumpCounter < 100){
+                    this.XPos++
+                    this.YPos -=2;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter === 100) {
+                    clearInterval(jumpInterval)
                 }
         }, 1)
-        }, 400) // stop the jumpUpInterval and start the jumpDown after half the jump
-
-        setTimeout(() => {
-            clearInterval(jumpDownInterval);
-        }, 800) // clear the jumpDownInterval after landing
-
-// jump refactor
-        // let jumpDown = false;
-        // let jumpCounter = 0;
-
-        // let jumpInterval = setInterval( () => {
-        //     if(jumpCounter < 50 && jumpDown === false){
-        //         this.XPos++
-        //         this.YPos++;
-        //         this.DOMElement.style.left = this.XPos + "px";
-        //         this.DOMElement.style.bottom = this.YPos + "px";
-        //         jumpCounter++
-        //     }
-        //     if(jumpCounter === 50) jumpDown === true;
-        //     if(jumpCounter >= 0 && jumpDown === true){
-        //         this.XPos++
-        //         this.YPos--;
-        //         this.DOMElement.style.left = this.XPos + "px";
-        //         this.DOMElement.style.bottom = this.YPos + "px";
-        //         jumpCounter--
-        //     }
-        //     if(jumpCounter === -1) clearInterval(jumpInterval);
-        // }, 1)
     }
-    // a bit buggy
+
 
     jumpLeft(){
-        let XPosOld = this.XPos;
-        let YPosOld = this.YPos;
-        let jumpUpInterval;
-        let jumpDownInterval;
-        if(this.YPos === 0) { // only jump up if you're on the ground
-            jumpUpInterval = setInterval(() => { 
-                if(this.XPos > XPosOld - 100){
-                this.XPos -= 1;
-                this.YPos += 1;
-                this.DOMElement.style.left = this.XPos + "px";
-                this.DOMElement.style.bottom = this.YPos + "px";
+        let jumpCounter = 0;
+        let jumpInterval = setInterval(() => {
+                if(jumpCounter < 50){
+                    this.XPos--;
+                    this.YPos+=2;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
                 }
-            }, 1)
-        }
-        
-        setTimeout(() => {
-            clearInterval(jumpUpInterval);
-            jumpDownInterval = setInterval(() => { 
-            if(this.YPos > YPosOld){
-                this.XPos -= 1;
-                this.YPos -= 1;
-                this.DOMElement.style.left = this.XPos + "px";
-                this.DOMElement.style.bottom = this.YPos + "px";
+                if(jumpCounter >= 50 && jumpCounter < 100){
+                    this.XPos--;
+                    this.YPos-=2;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter === 100) {
+                    clearInterval(jumpInterval)
                 }
         }, 1)
-        }, 400) // stop the jumpUpInterval and start the jumpDown after half the jump
-
-        setTimeout(() => {
-            clearInterval(jumpDownInterval);
-        }, 800) // clear the jumpDownInterval after landing
     }
+
+    // jumpUp()
 
     growPlayer(){
         let oldWidth = this.width
@@ -201,11 +160,12 @@ addEventListener("keydown", (event) => {
 
     if(event.code === "Space"){
         // attention not to jump outside the board
-        if(player.direction === "left" && player.XPos > 200){ // board jump limit should be dynamic depending on player size
+        if(player.direction === "left" && player.YPos === 0 && player.XPos > player.width){ // board jump limit should be dynamic depending on player size
             player.jumpLeft()
+            console.log("left");
         }
 
-        if(player.direction === "right" && player.XPos < boardWidth - 200){ // potentially make jump smaller if board is exceeded
+        if(player.direction === "right" && player.YPos === 0 && player.XPos < boardWidth - player.width){ // potentially make jump smaller if board is exceeded
             player.jumpRight()
         }
     }

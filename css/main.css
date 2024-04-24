@@ -36,6 +36,7 @@ span{
     background-image: url("../images/background.svg");
     margin: auto;
     position: relative;
+    overflow: hidden;
     /* border: 2px solid brown; */
     /* border-radius: 50% */
 }
