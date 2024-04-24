@@ -193,7 +193,7 @@ let detectCollisionInterval = setInterval(() => {
 detectCollision();
 
 
-let timeRemaining = 60;
+let timeRemaining = 90;
 const timer = document.querySelector("#timer");
 let minutes;
 let seconds;
