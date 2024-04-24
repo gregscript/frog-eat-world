@@ -112,8 +112,8 @@ class Player{
     growPlayer(){
         let oldWidth = this.width
         let oldHeight = this.height;
-        const maxWidth = 150;
-        const maxHeight = 150;
+        const maxWidth = 130;
+        const maxHeight = 130;
         let growPlayerInterval = setInterval(() => {
         if(this.width <= oldWidth+10 && this.height <= oldHeight+10 
             && this.width < maxWidth && this.height < maxHeight) // frog can grow multiple times until reaches growth limit 
