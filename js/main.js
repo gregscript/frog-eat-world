@@ -87,20 +87,44 @@ class Player{
         }, 1)
     }
 
-    // jumpUp()
+    jumpUp(){
+        let jumpCounter = 0;
+        let jumpInterval = setInterval(() => {
+                if(jumpCounter < 50){
+                    this.YPos+=3;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter >= 50 && jumpCounter < 100){
+                    this.YPos-=3;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter === 100) {
+                    clearInterval(jumpInterval)
+                }
+        }, 1)
+    }
+
 
     growPlayer(){
         let oldWidth = this.width
         let oldHeight = this.height;
+        const maxWidth = 150;
+        const maxHeight = 150;
         let growPlayerInterval = setInterval(() => {
-        if(this.width <= oldWidth+10 && this.height <= oldHeight+10) { // should be flexible (i.e. grow multiple times)
+        if(this.width <= oldWidth+10 && this.height <= oldHeight+10 
+            && this.width < maxWidth && this.height < maxHeight) // frog can grow multiple times until reaches growth limit 
+            { 
             this.width += 5;
             this.height += 5;
             this.DOMElement.style.width = this.width + "px"
             this.DOMElement.style.height = this.height + "px"
         } else {
             clearInterval(growPlayerInterval)
-            detectCollision(); // this is dangerous if we do not remove fly instance, frog could grow forever due to permanent collision
+            detectCollision();
         }
     }, 70) // potentially wrap another timeout around it to delay the growth a bit
     }
@@ -123,8 +147,9 @@ class Fly{
         this.XPos = Math.floor(Math.random() * (this.maxBoardPosX - this.minBoardPosX + 1)) + this.minBoardPosX;
         this.YPos = Math.floor(Math.random() * (this.maxBoardPosY - this.minBoardPosY + 1)) + this.minBoardPosY;
         this.DOMElement = null;
-
-        this.createFly()
+        this.createFly();
+        this.flyAround();
+        this.keepFlying();
     }
     createFly(){
         this.DOMElement = document.createElement("div");
@@ -136,15 +161,60 @@ class Fly{
         this.DOMElement.style.left = this.XPos + "px";
         board.appendChild(this.DOMElement);
     }
+    flyAround(){
+        let jumpCounter = 0;
+        let flyInterval = setInterval(() => {
+                if(jumpCounter < 50){
+                    this.XPos--;
+                    this.YPos+=1;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter >= 50 && jumpCounter < 100){
+                    this.XPos--;
+                    this.YPos-=1;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter >= 100 & jumpCounter < 150){
+                    this.XPos++;
+                    this.YPos-=1;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter >= 150 && jumpCounter < 200){
+                    this.XPos++;
+                    this.YPos+=1;
+                    this.DOMElement.style.left = this.XPos + "px";
+                    this.DOMElement.style.bottom = this.YPos + "px";
+                    jumpCounter++
+                }
+                if(jumpCounter === 200) {
+                    clearInterval(flyInterval)
+                    jumpCounter = 0;
+                }
+        }, 1)
+    }
+    // not necessary as we can just leave out the clearInterval
+    keepFlying(){
+        setInterval(() => {
+            this.flyAround()
+        }, 750)
+    }
 }
 
-const flyArray = [new Fly(0)];
-let ID = 1;
+// create 3 flies at game start
+const flyArray = [new Fly(1), new Fly(2), new Fly(3)];
 
+// create additional fly every 2 seconds, starting at ID #4
+let startID = 4
 setInterval(() => {
-    let newFly = new Fly(ID);
+    let newFly = new Fly(startID);
     flyArray.push(newFly);
-    ID++;
+    startID++;
 }, 2000)
 
 
@@ -156,6 +226,10 @@ addEventListener("keydown", (event) => {
     }
     if(event.code === "ArrowRight"){
         player.moveRight();
+    }
+
+    if(event.code === "ArrowUp"){
+        if(player.YPos === 0) player.jumpUp();
     }
 
     if(event.code === "Space"){
@@ -193,7 +267,7 @@ let detectCollisionInterval = setInterval(() => {
 detectCollision();
 
 
-let timeRemaining = 90;
+let timeRemaining = 60;
 const timer = document.querySelector("#timer");
 let minutes;
 let seconds;
