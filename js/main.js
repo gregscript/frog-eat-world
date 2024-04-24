@@ -143,13 +143,12 @@ class Fly{
         this.minBoardPosX = this.width;
         this.maxBoardPosX = boardWidth - this.width;
         this.minBoardPosY = boardHeight/6;
-        this.maxBoardPosY = boardHeight/3;
+        this.maxBoardPosY = boardHeight/2.25;
         this.XPos = Math.floor(Math.random() * (this.maxBoardPosX - this.minBoardPosX + 1)) + this.minBoardPosX;
         this.YPos = Math.floor(Math.random() * (this.maxBoardPosY - this.minBoardPosY + 1)) + this.minBoardPosY;
         this.DOMElement = null;
         this.createFly();
         this.flyAround();
-        this.keepFlying();
     }
     createFly(){
         this.DOMElement = document.createElement("div");
@@ -193,21 +192,30 @@ class Fly{
                     jumpCounter++
                 }
                 if(jumpCounter === 200) {
-                    clearInterval(flyInterval)
                     jumpCounter = 0;
                 }
         }, 1)
     }
-    // not necessary as we can just leave out the clearInterval
-    keepFlying(){
-        setInterval(() => {
-            this.flyAround()
-        }, 750)
-    }
 }
+
+// start game view
+// add instructions
+// 
+
+// "Press Space to start game"
+// launch sound
+
+const fliesSound = new Audio("./audio/fliesbuzzing.mp3");
+const flySound = new Audio("./audio/flysbuzzing.mp3");
+fliesSound.volume = 0.5;
+flySound.volume = 0.5;
 
 // create 3 flies at game start
 const flyArray = [new Fly(1), new Fly(2), new Fly(3)];
+
+// every 1 second check how many flies are there and then change sound accordingly
+// fliesSound.play()
+// flySound.play()
 
 // create additional fly every 2 seconds, starting at ID #4
 let startID = 4
@@ -226,6 +234,7 @@ addEventListener("keydown", (event) => {
     }
     if(event.code === "ArrowRight"){
         player.moveRight();
+
     }
 
     if(event.code === "ArrowUp"){
