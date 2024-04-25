@@ -1,14 +1,3 @@
-// board setup
-
-const board = document.querySelector("#board");
-let boardWidth = 954;
-let boardHeight = 636;
-board.style.width = boardWidth + "px";
-board.style.height = boardHeight + "px";
-
-// get other DOM elements
-const timer = document.querySelector("#timer");
-
 // class Game
 
 class Game{
@@ -17,11 +6,19 @@ class Game{
         this.timeRemaining = 60;
         this.flyCounter = 0
         this.flyArray = [];
+
+        this.board = document.querySelector("#board");
+        this.boardWidth = 954; //
+        this.boardHeight = 636; //
+        this.board.style.width = this.boardWidth + "px";
+        this.board.style.height = this.boardHeight + "px";
+
+        this.timer = document.querySelector("#timer"); 
+
     } 
     startGame(){
         this.flyCounter++
         this.flyArray.push(new Fly(this.flyCounter));
-        this.listenGameKeys()
         this.addFlies()
         // this.hideFlies()
         // this.playSound();
@@ -49,7 +46,7 @@ class Game{
                     player.jumpLeft()
                 }
         
-                if(player.direction === "right" && player.YPos === 0 && player.XPos < boardWidth - player.width){ // potentially make jump smaller if board is exceeded
+                if(player.direction === "right" && player.YPos === 0 && player.XPos < this.boardWidth - player.width){ // potentially make jump smaller if board is exceeded
                     player.jumpRight()
                 }
             }
@@ -77,11 +74,9 @@ class Game{
                 player.XPos + player.width > fly.XPos &&
                 player.YPos < fly.YPos + fly.height &&
                 player.YPos + player.height > fly.YPos) {
-                    console.log(`Removing #Fly${fly.ID}`)
                     document.querySelector(`#Fly${fly.ID}`).remove();
                     this.flyArray.splice(index, 1)
                     player.growPlayer();
-                    console.log("Collision")
             }
             if(this.flyArray.length === 0) location.href = "win.html";
             })
@@ -104,7 +99,7 @@ class Game{
         seconds = (this.timeRemaining % 60).toString().padStart(2, "0");
     
         // Display the time remaining in the time remaining container
-        timer.innerText = `Time Remaining: ${minutes}:${seconds}`;
+        this.timer.innerText = `Time Remaining: ${minutes}:${seconds}`;
     }
 }
 
@@ -116,8 +111,8 @@ class Player{
         this.width = 50;
         this.height = 50;
         this.minBoardPos = this.width;
-        this.maxBoardPos = boardWidth - this.width;
-        this.XPos = 0
+        this.maxBoardPos = game.boardWidth - this.width;
+        this.XPos = (game.boardWidth/2) - (this.width/2)
         this.YPos = 0
         this.direction = "right";
 
@@ -137,7 +132,7 @@ class Player{
         }    
     }
     moveRight(){
-        if(this.XPos < boardWidth - this.width){
+        if(this.XPos < game.boardWidth - this.width){
             this.XPos += 10;
             this.direction = "right";
             this.DOMElement.style.left = this.XPos + "px";
@@ -234,8 +229,6 @@ class Player{
 
 }
 
-const player = new Player();
-
 // fly setup
 
 class Fly{
@@ -244,9 +237,9 @@ class Fly{
         this.width = 50;
         this.height = 50;
         this.minBoardPosX = this.width;
-        this.maxBoardPosX = boardWidth - this.width;
-        this.minBoardPosY = boardHeight/6;
-        this.maxBoardPosY = boardHeight/2.25;
+        this.maxBoardPosX = game.boardWidth - this.width;
+        this.minBoardPosY = game.boardHeight/6;
+        this.maxBoardPosY = game.boardHeight/2.25;
         this.XPos = Math.floor(Math.random() * (this.maxBoardPosX - this.minBoardPosX + 1)) + this.minBoardPosX;
         this.YPos = Math.floor(Math.random() * (this.maxBoardPosY - this.minBoardPosY + 1)) + this.minBoardPosY;
         this.DOMElement = null;
@@ -313,8 +306,11 @@ fliesSound.volume = 0.5;
 flySound.volume = 0.5;
 
 // create game variables
-game = new Game();
-game.startGame();
+const game = new Game();
+game.listenGameKeys();
+const player = new Player();
+
+// game.startGame();
 
 // show instructions and await user to start game "Press Space to start game"
 

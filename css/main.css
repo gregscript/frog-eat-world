@@ -15,12 +15,10 @@ a:link {
     color: hotpink;
   }
   
-  /* visited link */
   a:visited {
     color: hotpink;
   }
   
-  /* mouse over link */
   a:hover {
     color: black;
   }
@@ -29,16 +27,19 @@ span{
     color:hotpink;
 }
 
+button{
+    width: 120px;
+    height: 40px;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
+
 #board{
     width: 954px;
     height: 636px;
-    /* background: rgb(0, 229, 250); */
     background-image: url("../images/background.svg");
     margin: auto;
     position: relative;
     overflow: hidden;
-    /* border: 2px solid brown; */
-    /* border-radius: 50% */
 }
 
 #timer{
@@ -47,7 +48,7 @@ span{
 }
 
 #instructions{
-    background-color: grey;
+    background-color: rgb(65, 65, 65);
     position: absolute;
     opacity: 0.7;
     width: 700px;
