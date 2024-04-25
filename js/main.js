@@ -13,7 +13,9 @@ class Game{
         this.board.style.width = this.boardWidth + "px";
         this.board.style.height = this.boardHeight + "px";
 
-        this.timer = document.querySelector("#timer"); 
+        this.timer = document.querySelector("#timer");
+        this.instructions = document.querySelector("#instructions")
+        this.startButton = document.querySelector("#start-button")
 
     } 
     startGame(){
@@ -310,13 +312,13 @@ const game = new Game();
 game.listenGameKeys();
 const player = new Player();
 
-// game.startGame();
+game.startButton.addEventListener("click", function(){
+   game.instructions.classList.toggle("hide")
+   game.startGame();
+   // show timer
+   // show score
+})
 
-// show instructions and await user to start game "Press Space to start game"
-
-// hide instruction view
-// show timer
-// show score
 
 
 
