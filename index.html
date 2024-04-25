@@ -10,12 +10,17 @@
     <h1>Frog Eat World</h1>
     <div id="timer">Time Remaining: 01:00</div>
     <div id="board">
-        <div id="instructions">
+        <div id="instructions" class="overlay">
             <h2>Instructions</h2>
             <p>Move Left, Right or Up with <span>Arrow Keys </and></span><br>Press <span>Space</span> to Jump<p>
             <p>You have <span>1 minute</span> to catch all the flies.</p><br>
             <button id="start-button">Start Game</button>
         </div>
+        <div id="bonus-view" class="overlay hide">
+            <h2>Congrats, Frog! You have unlocked the Bonus Level!</h2>
+            <button id="start-bonus-button">Start Game</button>
+        </div>
+        <div id="night-mode" class="overlay hide"></div>
         <img id="player">
         <!-- <img class="fly"> -->
     </div>

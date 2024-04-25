@@ -1,12 +1,12 @@
-// class Game
-
 class Game{
     constructor(){
-        this.level = 0;
         this.timeRemaining = 60;
         this.flyCounter = 0
         this.flyArray = [];
-
+        this.addFlyInterval = null;
+        this.timerInterval = null;
+        this.bonusLevel = false;
+        
         // load board
         this.board = document.querySelector("#board");
         this.boardWidth = 954; //
@@ -17,11 +17,16 @@ class Game{
         // load DOM elements
         this.timer = document.querySelector("#timer");
         this.instructions = document.querySelector("#instructions")
+        this.bonusView = document.querySelector("#bonus-view")
+        this.nightMode = document.querySelector("#night-mode")
         this.startButton = document.querySelector("#start-button")
+        this.startBonusButton = document.querySelector("#start-bonus-button")
 
         // load audio
         this.flySound = new Audio("./audio/flybuzz.mp3");
         this.popSound = new Audio("./audio/pop.mp3");
+        this.bonusSound = new Audio("./audio/level-up.mp3")
+        this.background = new Audio("./audio/background.mp3")
         this.flySound.volume = 0.5;
         this.popSound.volume = 0.5;
 
@@ -29,11 +34,25 @@ class Game{
     startGame(){
         this.flyCounter++
         this.flyArray.push(new Fly(this.flyCounter));
+        this.addFlies()
+        // this.hideFlies()
+        this.playFlySound();
+        this.detectCollision();
+        this.updateTimer()
+    }
+    startBonusGame(){
+        this.nightMode.classList.toggle("hide");
+        this.timeRemaining = 90;
+        player.width = 50;
+        player.height = 50;
+        player.DOMElement.style.width = player.width + "px"
+        player.DOMElement.style.height = player.height + "px"
+        this.background.play();
         this.flyCounter++
         this.flyArray.push(new Fly(this.flyCounter));
         this.addFlies()
         // this.hideFlies()
-        this.playSound();
+        // this.playFlySound();
         this.detectCollision();
         this.updateTimer()
     }
@@ -65,15 +84,16 @@ class Game{
         })
     }
     addFlies(){
-        setInterval(() => {
+        let spawnTime;
+        if(this.bonusLevel === false) spawnTime = 3000;
+        if(this.bonusLevel === true) spawnTime = 1500;
+        this.addFlyInterval = setInterval(() => {
             this.flyCounter++;
             let newFly = new Fly(this.flyCounter);
             this.flyArray.push(newFly);
-        }, 5000)
+        }, spawnTime)
     }
-    // hideFlies(){
-    // }
-    playSound(){
+    playFlySound(){
         this.flySound.play()
         this.flySound.loop = true
     }
@@ -90,14 +110,21 @@ class Game{
                     this.popSound.play();
                     player.growPlayer();
             }
-            if(this.flyArray.length === 0) location.href = "win.html";
+            if(this.flyArray.length === 0) {
+                clearInterval(this.addFlyInterval);
+                clearInterval(this.timerInterval);
+                this.flySound.pause();
+                this.bonusView.classList.toggle("hide");
+                this.bonusSound.play();
+                this.bonusLevel = true;
+            }
             })
         }, 100);
     }
     updateTimer(){
         this.updateTime();
         
-        setInterval(() => {
+        this.timerInterval = setInterval(() => {
             this.timeRemaining--;
             this.updateTime();
             if(this.timeRemaining === 0) location.href = "gameover.html";
@@ -114,9 +141,6 @@ class Game{
         this.timer.innerText = `Time Remaining: ${minutes}:${seconds}`;
     }
 }
-
-
-// class Player
 
 class Player{
     constructor(){
@@ -217,13 +241,11 @@ class Player{
                 }
         }, 1)
     }
-
-
     growPlayer(){
         let oldWidth = this.width
         let oldHeight = this.height;
-        const maxWidth = 130;
-        const maxHeight = 130;
+        const maxWidth = 120 // tested with 130
+        const maxHeight = 120; // tested with 130
         let growPlayerInterval = setInterval(() => {
         if(this.width <= oldWidth+10 && this.height <= oldHeight+10 
             && this.width < maxWidth && this.height < maxHeight) // frog can grow multiple times until reaches growth limit 
@@ -234,14 +256,11 @@ class Player{
             this.DOMElement.style.height = this.height + "px"
         } else {
             clearInterval(growPlayerInterval)
-            // game.detectCollision();
         }
     }, 70) // potentially wrap another timeout around it to delay the growth a bit
     }
 
 }
-
-// fly setup
 
 class Fly{
     constructor(ID){
@@ -250,17 +269,20 @@ class Fly{
         this.height = 50;
         this.minBoardPosX = this.width;
         this.maxBoardPosX = game.boardWidth - this.width;
-        this.minBoardPosY = game.boardHeight/6;
+        if(game.bonusLevel === false) this.minBoardPosY = game.boardHeight/6;
+        if(game.bonusLevel === true) this.minBoardPosY = game.boardHeight/3;
         this.maxBoardPosY = game.boardHeight/2.25;
         this.XPos = Math.floor(Math.random() * (this.maxBoardPosX - this.minBoardPosX + 1)) + this.minBoardPosX;
         this.YPos = Math.floor(Math.random() * (this.maxBoardPosY - this.minBoardPosY + 1)) + this.minBoardPosY;
         this.DOMElement = null;
+        this.flyInterval;
         this.createFly();
         this.flyAround();
     }
     createFly(){
         this.DOMElement = document.createElement("div");
-        this.DOMElement.className = "fly"
+        if(game.bonusLevel === false) this.DOMElement.className = "fly";
+        if(game.bonusLevel === true) this.DOMElement.className = "ghost";
         this.DOMElement.id = "Fly"+this.ID;
         this.DOMElement.style.width = this.width + "px"
         this.DOMElement.style.height = this.height + "px"
@@ -270,31 +292,37 @@ class Fly{
     }
     flyAround(){
         let jumpCounter = 0;
-        let flyInterval = setInterval(() => {
+        let refreshBuffer = 1;
+        let accelerator = 1;
+        if(game.bonusLevel === true) {
+            refreshBuffer = 0.5;
+            accelerator = 2
+            }
+        setInterval(() => {
                 if(jumpCounter < 50){
-                    this.XPos--;
-                    this.YPos+=1;
+                    this.XPos-=accelerator;
+                    this.YPos+=accelerator;
                     this.DOMElement.style.left = this.XPos + "px";
                     this.DOMElement.style.bottom = this.YPos + "px";
                     jumpCounter++
                 }
                 if(jumpCounter >= 50 && jumpCounter < 100){
-                    this.XPos--;
-                    this.YPos-=1;
+                    this.XPos-=accelerator;
+                    this.YPos-=accelerator;
                     this.DOMElement.style.left = this.XPos + "px";
                     this.DOMElement.style.bottom = this.YPos + "px";
                     jumpCounter++
                 }
                 if(jumpCounter >= 100 & jumpCounter < 150){
-                    this.XPos++;
-                    this.YPos-=1;
+                    this.XPos+=accelerator;
+                    this.YPos-=accelerator;
                     this.DOMElement.style.left = this.XPos + "px";
                     this.DOMElement.style.bottom = this.YPos + "px";
                     jumpCounter++
                 }
                 if(jumpCounter >= 150 && jumpCounter < 200){
-                    this.XPos++;
-                    this.YPos+=1;
+                    this.XPos+=accelerator;
+                    this.YPos+=accelerator;
                     this.DOMElement.style.left = this.XPos + "px";
                     this.DOMElement.style.bottom = this.YPos + "px";
                     jumpCounter++
@@ -302,16 +330,9 @@ class Fly{
                 if(jumpCounter === 200) {
                     jumpCounter = 0;
                 }
-        }, 1)
+        }, refreshBuffer)
     }
 }
-
-// const flyArray = [];
-
-// create new Game
-
-// load audio
-
 
 
 // create game variables
@@ -322,13 +343,16 @@ const player = new Player();
 game.startButton.addEventListener("click", () => {
    game.instructions.classList.toggle("hide")
    game.startGame();
-   // show timer
-   // show score
 })
 
+game.startBonusButton.addEventListener("click", () => {
+    game.bonusView.classList.toggle("hide")
+    game.startBonusGame();
+ })
+ 
 
 
+   // show timer
+   // show score
 
-// create 3 flies at game start
-// const flyArray = [new Fly(1), new Fly(2), new Fly(3)];
 

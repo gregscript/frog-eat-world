@@ -47,7 +47,7 @@ button{
     color: hotpink;
 }
 
-#instructions{
+.overlay{
     background-color: rgb(65, 65, 65);
     border-radius: 2%;
     position: absolute;
@@ -62,17 +62,37 @@ button{
     color: white;
 }
 
+#bonus-view{
+    height: 150px;
+}
+
+#night-mode{
+    width: 954px;
+    height: 636px;
+    border-radius: 0%;
+    opacity: 0.8;
+    z-index: 0;
+}
+/* #bonus-view h2{
+    color:lightpink;
+} */
+
 #player{
     content:url("../images/frog.svg");
     height: 100px;
     width: 100px;
     position: absolute;
     left: 0px;
-    bottom: 400px
+    bottom: 400px;
 }
 
 .fly{
     content:url("../images/fly.svg");
+    position: absolute;
+}
+
+.ghost{
+    content:url("../images/ghost.svg");
     position: absolute;
 }
 
