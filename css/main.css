@@ -49,6 +49,7 @@ button{
 
 #instructions{
     background-color: rgb(65, 65, 65);
+    border-radius: 2%;
     position: absolute;
     opacity: 0.7;
     width: 700px;

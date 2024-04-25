@@ -7,23 +7,33 @@ class Game{
         this.flyCounter = 0
         this.flyArray = [];
 
+        // load board
         this.board = document.querySelector("#board");
         this.boardWidth = 954; //
         this.boardHeight = 636; //
         this.board.style.width = this.boardWidth + "px";
         this.board.style.height = this.boardHeight + "px";
 
+        // load DOM elements
         this.timer = document.querySelector("#timer");
         this.instructions = document.querySelector("#instructions")
         this.startButton = document.querySelector("#start-button")
+
+        // load audio
+        this.flySound = new Audio("./audio/flybuzz.mp3");
+        this.popSound = new Audio("./audio/pop.mp3");
+        this.flySound.volume = 0.5;
+        this.popSound.volume = 0.5;
 
     } 
     startGame(){
         this.flyCounter++
         this.flyArray.push(new Fly(this.flyCounter));
+        this.flyCounter++
+        this.flyArray.push(new Fly(this.flyCounter));
         this.addFlies()
         // this.hideFlies()
-        // this.playSound();
+        this.playSound();
         this.detectCollision();
         this.updateTimer()
     }
@@ -59,15 +69,14 @@ class Game{
             this.flyCounter++;
             let newFly = new Fly(this.flyCounter);
             this.flyArray.push(newFly);
-        }, 2000)
+        }, 5000)
     }
     // hideFlies(){
     // }
-    // playSound(){
-    //     // every 1 second check how many flies are there and then change sound accordingly
-    //     // fliesSound.play()
-    //     // flySound.play()
-    // }
+    playSound(){
+        this.flySound.play()
+        this.flySound.loop = true
+    }
     detectCollision(){
         setInterval(() => {
             this.flyArray.forEach((fly, index) => 
@@ -78,6 +87,7 @@ class Game{
                 player.YPos + player.height > fly.YPos) {
                     document.querySelector(`#Fly${fly.ID}`).remove();
                     this.flyArray.splice(index, 1)
+                    this.popSound.play();
                     player.growPlayer();
             }
             if(this.flyArray.length === 0) location.href = "win.html";
@@ -302,17 +312,14 @@ class Fly{
 
 // load audio
 
-const fliesSound = new Audio("./audio/fliesbuzzing.mp3");
-const flySound = new Audio("./audio/flybuzzing.mp3");
-fliesSound.volume = 0.5;
-flySound.volume = 0.5;
+
 
 // create game variables
 const game = new Game();
 game.listenGameKeys();
 const player = new Player();
 
-game.startButton.addEventListener("click", function(){
+game.startButton.addEventListener("click", () => {
    game.instructions.classList.toggle("hide")
    game.startGame();
    // show timer
