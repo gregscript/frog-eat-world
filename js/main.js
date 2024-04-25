@@ -6,6 +6,109 @@ let boardHeight = 636;
 board.style.width = boardWidth + "px";
 board.style.height = boardHeight + "px";
 
+// get other DOM elements
+const timer = document.querySelector("#timer");
+
+// class Game
+
+class Game{
+    constructor(){
+        this.level = 0;
+        this.timeRemaining = 60;
+        this.flyCounter = 0
+        this.flyArray = [];
+    } 
+    startGame(){
+        this.flyCounter++
+        this.flyArray.push(new Fly(this.flyCounter));
+        this.listenGameKeys()
+        this.addFlies()
+        // this.hideFlies()
+        // this.playSound();
+        this.detectCollision();
+        this.updateTimer()
+    }
+    listenGameKeys(){
+        addEventListener("keydown", (event) => {
+            // console.log(event.code);
+            if(event.code === "ArrowLeft"){
+                player.moveLeft();
+            }
+            if(event.code === "ArrowRight"){
+                player.moveRight();
+        
+            }
+        
+            if(event.code === "ArrowUp"){
+                if(player.YPos === 0) player.jumpUp();
+            }
+        
+            if(event.code === "Space"){
+                // attention not to jump outside the board
+                if(player.direction === "left" && player.YPos === 0 && player.XPos > player.width){ // board jump limit should be dynamic depending on player size
+                    player.jumpLeft()
+                }
+        
+                if(player.direction === "right" && player.YPos === 0 && player.XPos < boardWidth - player.width){ // potentially make jump smaller if board is exceeded
+                    player.jumpRight()
+                }
+            }
+        })
+    }
+    addFlies(){
+        setInterval(() => {
+            this.flyCounter++;
+            let newFly = new Fly(this.flyCounter);
+            this.flyArray.push(newFly);
+        }, 2000)
+    }
+    // hideFlies(){
+    // }
+    // playSound(){
+    //     // every 1 second check how many flies are there and then change sound accordingly
+    //     // fliesSound.play()
+    //     // flySound.play()
+    // }
+    detectCollision(){
+        setInterval(() => {
+            this.flyArray.forEach((fly, index) => 
+            {
+            if (player.XPos < fly.XPos + fly.width &&
+                player.XPos + player.width > fly.XPos &&
+                player.YPos < fly.YPos + fly.height &&
+                player.YPos + player.height > fly.YPos) {
+                    console.log(`Removing #Fly${fly.ID}`)
+                    document.querySelector(`#Fly${fly.ID}`).remove();
+                    this.flyArray.splice(index, 1)
+                    player.growPlayer();
+                    console.log("Collision")
+            }
+            if(this.flyArray.length === 0) location.href = "win.html";
+            })
+        }, 100);
+    }
+    updateTimer(){
+        this.updateTime();
+        
+        setInterval(() => {
+            this.timeRemaining--;
+            this.updateTime();
+            if(this.timeRemaining === 0) location.href = "gameover.html";
+        }, 1000)
+    }
+    updateTime(){
+        let minutes;
+        let seconds;  
+        // Convert the time remaining in seconds to minutes and seconds, and pad the numbers with zeros if needed
+        minutes = Math.floor(this.timeRemaining / 60).toString().padStart(2, "0");
+        seconds = (this.timeRemaining % 60).toString().padStart(2, "0");
+    
+        // Display the time remaining in the time remaining container
+        timer.innerText = `Time Remaining: ${minutes}:${seconds}`;
+    }
+}
+
+
 // class Player
 
 class Player{
@@ -124,7 +227,7 @@ class Player{
             this.DOMElement.style.height = this.height + "px"
         } else {
             clearInterval(growPlayerInterval)
-            detectCollision();
+            // game.detectCollision();
         }
     }, 70) // potentially wrap another timeout around it to delay the growth a bit
     }
@@ -198,102 +301,29 @@ class Fly{
     }
 }
 
-// start game view
-// add instructions
-// 
+// const flyArray = [];
 
-// "Press Space to start game"
-// launch sound
+// create new Game
+
+// load audio
 
 const fliesSound = new Audio("./audio/fliesbuzzing.mp3");
-const flySound = new Audio("./audio/flysbuzzing.mp3");
+const flySound = new Audio("./audio/flybuzzing.mp3");
 fliesSound.volume = 0.5;
 flySound.volume = 0.5;
 
+// create game variables
+game = new Game();
+game.startGame();
+
+// show instructions and await user to start game "Press Space to start game"
+
+// hide instruction view
+// show timer
+// show score
+
+
+
 // create 3 flies at game start
-const flyArray = [new Fly(1), new Fly(2), new Fly(3)];
-
-// every 1 second check how many flies are there and then change sound accordingly
-// fliesSound.play()
-// flySound.play()
-
-// create additional fly every 2 seconds, starting at ID #4
-let startID = 4
-setInterval(() => {
-    let newFly = new Fly(startID);
-    flyArray.push(newFly);
-    startID++;
-}, 2000)
-
-
-// To Do: adjust frog image Direction with direction change
-addEventListener("keydown", (event) => {
-    // console.log(event.code);
-    if(event.code === "ArrowLeft"){
-        player.moveLeft();
-    }
-    if(event.code === "ArrowRight"){
-        player.moveRight();
-
-    }
-
-    if(event.code === "ArrowUp"){
-        if(player.YPos === 0) player.jumpUp();
-    }
-
-    if(event.code === "Space"){
-        // attention not to jump outside the board
-        if(player.direction === "left" && player.YPos === 0 && player.XPos > player.width){ // board jump limit should be dynamic depending on player size
-            player.jumpLeft()
-            console.log("left");
-        }
-
-        if(player.direction === "right" && player.YPos === 0 && player.XPos < boardWidth - player.width){ // potentially make jump smaller if board is exceeded
-            player.jumpRight()
-        }
-    }
-})
-
-// collision detection (= frog eats fly):
-
-function detectCollision(){
-let detectCollisionInterval = setInterval(() => {
-        flyArray.forEach((fly, index) => 
-        {
-        if (player.XPos < fly.XPos + fly.width &&
-            player.XPos + player.width > fly.XPos &&
-            player.YPos < fly.YPos + fly.height &&
-            player.YPos + player.height > fly.YPos) {
-                document.querySelector(`#Fly${fly.ID}`).remove();
-                flyArray.splice(index, 1)
-                player.growPlayer();
-                clearInterval(detectCollisionInterval);
-        }
-        if(flyArray.length === 0) location.href = "win.html";
-        })
-}, 100);
-}
-detectCollision();
-
-
-let timeRemaining = 60;
-const timer = document.querySelector("#timer");
-let minutes;
-let seconds;
-
-function updateTime() {
-  // Convert the time remaining in seconds to minutes and seconds, and pad the numbers with zeros if needed
-  minutes = Math.floor(timeRemaining / 60).toString().padStart(2, "0");
-  seconds = (timeRemaining % 60).toString().padStart(2, "0");
-
-  // Display the time remaining in the time remaining container
-  timer.innerText = `Time Remaining: ${minutes}:${seconds}`;
-}
-updateTime();
-
-setInterval(() => {
-    timeRemaining--;
-    updateTime();
-    if(timeRemaining === 0) location.href = "gameover.html";
-}, 1000)
+// const flyArray = [new Fly(1), new Fly(2), new Fly(3)];
 
