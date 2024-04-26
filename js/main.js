@@ -52,7 +52,7 @@ class Game{
         this.bonusLevel = false;
         this.userLost = false;
         this.userWon = false;
-        this.timeRemaining = 30;
+        this.timeRemaining = 60;
         player.width = 50;
         player.height = 50;
         player.DOMElement.style.width = player.width + "px"
@@ -68,7 +68,7 @@ class Game{
         this.bonusLevel = true;
         this.bonusView.classList.toggle("hide")
         this.nightMode.classList.toggle("hide");
-        this.timeRemaining = 30;
+        this.timeRemaining = 60;
         player.width = 50;
         player.height = 50;
         player.DOMElement.style.width = player.width + "px"
