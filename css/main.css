@@ -62,8 +62,16 @@ button{
     color: white;
 }
 
-#bonus-view{
+#bonus-view, #gameover-view, #win-view{
     height: 150px;
+}
+
+#win-view{
+    width: 600px;
+}
+
+#gameover-view{
+    width: 500px;
 }
 
 #night-mode{
@@ -73,9 +81,6 @@ button{
     opacity: 0.8;
     z-index: 0;
 }
-/* #bonus-view h2{
-    color:lightpink;
-} */
 
 #player{
     content:url("../images/frog.svg");

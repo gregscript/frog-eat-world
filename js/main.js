@@ -6,6 +6,8 @@ class Game{
         this.addFlyInterval = null;
         this.timerInterval = null;
         this.bonusLevel = false;
+        this.userWon = false;
+        this.userLost = false;
         
         // load board
         this.board = document.querySelector("#board");
@@ -16,33 +18,57 @@ class Game{
 
         // load DOM elements
         this.timer = document.querySelector("#timer");
-        this.instructions = document.querySelector("#instructions")
-        this.bonusView = document.querySelector("#bonus-view")
-        this.nightMode = document.querySelector("#night-mode")
-        this.startButton = document.querySelector("#start-button")
-        this.startBonusButton = document.querySelector("#start-bonus-button")
+        this.instructions = document.querySelector("#instructions");
+        this.bonusView = document.querySelector("#bonus-view");
+        this.gameOverView = document.querySelector("#gameover-view");
+        this.winView = document.querySelector("#win-view");
+        this.nightMode = document.querySelector("#night-mode");
+        this.startButtons = document.querySelectorAll(".start-button");
+        this.startBonusButton = document.querySelector("#start-bonus-button");
 
         // load audio
         this.flySound = new Audio("./audio/flybuzz.mp3");
         this.popSound = new Audio("./audio/pop.mp3");
-        this.bonusSound = new Audio("./audio/level-up.mp3")
-        this.background = new Audio("./audio/background.mp3")
+        this.gameOverSound = new Audio("./audio/gameover.mp3");
+        this.bonusSound = new Audio("./audio/level-up.mp3");
+        this.background = new Audio("./audio/background.mp3");
+        this.bonusSound.volume = 0.75;
         this.flySound.volume = 0.5;
         this.popSound.volume = 0.5;
 
     } 
     startGame(){
+        // reset game
+        if(this.bonusLevel) {
+            this.nightMode.classList.toggle("hide");
+            this.background.pause();
+            this.background.currentTime = 0;
+            }
+        if(this.userWon) this.winView.classList.toggle("hide");
+        if(this.userLost) this.gameOverView.classList.toggle("hide");   
+        if(!this.userWon && !this.userLost) this.instructions.classList.toggle("hide");
+
+        // initialize new game
+        this.bonusLevel = false;
+        this.userLost = false;
+        this.userWon = false;
+        this.timeRemaining = 30;
+        player.width = 50;
+        player.height = 50;
+        player.DOMElement.style.width = player.width + "px"
+        player.DOMElement.style.height = player.height + "px"
         this.flyCounter++
         this.flyArray.push(new Fly(this.flyCounter));
         this.addFlies()
-        // this.hideFlies()
         this.playFlySound();
         this.detectCollision();
         this.updateTimer()
     }
     startBonusGame(){
+        this.bonusLevel = true;
+        this.bonusView.classList.toggle("hide")
         this.nightMode.classList.toggle("hide");
-        this.timeRemaining = 90;
+        this.timeRemaining = 30;
         player.width = 50;
         player.height = 50;
         player.DOMElement.style.width = player.width + "px"
@@ -51,14 +77,11 @@ class Game{
         this.flyCounter++
         this.flyArray.push(new Fly(this.flyCounter));
         this.addFlies()
-        // this.hideFlies()
-        // this.playFlySound();
         this.detectCollision();
         this.updateTimer()
     }
     listenGameKeys(){
         addEventListener("keydown", (event) => {
-            // console.log(event.code);
             if(event.code === "ArrowLeft"){
                 player.moveLeft();
             }
@@ -72,12 +95,11 @@ class Game{
             }
         
             if(event.code === "Space"){
-                // attention not to jump outside the board
-                if(player.direction === "left" && player.YPos === 0 && player.XPos > player.width){ // board jump limit should be dynamic depending on player size
+                if(player.direction === "left" && player.YPos === 0 && player.XPos > player.width){ // board jump limit is dynamic depending on player size
                     player.jumpLeft()
                 }
         
-                if(player.direction === "right" && player.YPos === 0 && player.XPos < this.boardWidth - player.width){ // potentially make jump smaller if board is exceeded
+                if(player.direction === "right" && player.YPos === 0 && player.XPos < this.boardWidth - player.width){
                     player.jumpRight()
                 }
             }
@@ -113,13 +135,35 @@ class Game{
             if(this.flyArray.length === 0) {
                 clearInterval(this.addFlyInterval);
                 clearInterval(this.timerInterval);
-                this.flySound.pause();
-                this.bonusView.classList.toggle("hide");
-                this.bonusSound.play();
-                this.bonusLevel = true;
+                if(this.bonusLevel === false) this.showBonusGame();
+                if(this.bonusLevel === true) this.showWinView();
             }
             })
         }, 100);
+    }
+    showBonusGame(){
+        this.flySound.pause();
+        this.bonusView.classList.toggle("hide");
+        this.bonusSound.play();
+    }
+    showWinView(){
+        this.flySound.pause();
+        this.winView.classList.toggle("hide");
+        this.bonusSound.play();
+        this.userWon = true;
+    }
+    showGameOverView(){
+        clearInterval(this.addFlyInterval);
+        clearInterval(this.timerInterval);
+        this.flySound.pause();
+        this.gameOverSound.play();
+        this.gameOverView.classList.toggle("hide");
+        let removeFlyArray = document.querySelectorAll(".fly, .ghost")
+        removeFlyArray.forEach(fly => {
+            fly.remove();
+        })
+        this.flyArray = []
+        this.userLost = true;
     }
     updateTimer(){
         this.updateTime();
@@ -127,17 +171,16 @@ class Game{
         this.timerInterval = setInterval(() => {
             this.timeRemaining--;
             this.updateTime();
-            if(this.timeRemaining === 0) location.href = "gameover.html";
+            if(this.timeRemaining === 0) this.showGameOverView();
         }, 1000)
     }
     updateTime(){
         let minutes;
         let seconds;  
-        // Convert the time remaining in seconds to minutes and seconds, and pad the numbers with zeros if needed
+
         minutes = Math.floor(this.timeRemaining / 60).toString().padStart(2, "0");
         seconds = (this.timeRemaining % 60).toString().padStart(2, "0");
     
-        // Display the time remaining in the time remaining container
         this.timer.innerText = `Time Remaining: ${minutes}:${seconds}`;
     }
 }
@@ -159,7 +202,6 @@ class Player{
         this.DOMElement.style.bottom = this.YPos + "px";
 
     }
-    // DRY
     moveLeft(){
         if(this.XPos > 0){
             this.XPos -= 10;
@@ -196,8 +238,6 @@ class Player{
                 }
         }, 1)
     }
-
-
     jumpLeft(){
         let jumpCounter = 0;
         let jumpInterval = setInterval(() => {
@@ -220,7 +260,6 @@ class Player{
                 }
         }, 1)
     }
-
     jumpUp(){
         let jumpCounter = 0;
         let jumpInterval = setInterval(() => {
@@ -242,10 +281,10 @@ class Player{
         }, 1)
     }
     growPlayer(){
-        let oldWidth = this.width
+        let oldWidth = this.width;
         let oldHeight = this.height;
-        const maxWidth = 120 // tested with 130
-        const maxHeight = 120; // tested with 130
+        const maxWidth = 120;
+        const maxHeight = 120; 
         let growPlayerInterval = setInterval(() => {
         if(this.width <= oldWidth+10 && this.height <= oldHeight+10 
             && this.width < maxWidth && this.height < maxHeight) // frog can grow multiple times until reaches growth limit 
@@ -296,7 +335,7 @@ class Fly{
         let accelerator = 1;
         if(game.bonusLevel === true) {
             refreshBuffer = 0.5;
-            accelerator = 2
+            accelerator = 2;
             }
         setInterval(() => {
                 if(jumpCounter < 50){
@@ -340,19 +379,15 @@ const game = new Game();
 game.listenGameKeys();
 const player = new Player();
 
-game.startButton.addEventListener("click", () => {
-   game.instructions.classList.toggle("hide")
-   game.startGame();
+// add Event Listeners
+game.startButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        game.startGame();
+    })
 })
 
+
 game.startBonusButton.addEventListener("click", () => {
-    game.bonusView.classList.toggle("hide")
     game.startBonusGame();
  })
- 
-
-
-   // show timer
-   // show score
-
 
